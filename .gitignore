@@ -1,6 +1,8 @@
 # Mac OS dust. I can't really help with the Extended HFS attribute files (._filename, 4KB), just don't use NTFS/FAT ;D
 
 .DS_Store
+.Trashes
+*.swp
 
 # Compiled Object files
 *.slo
