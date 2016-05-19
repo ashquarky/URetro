@@ -4,6 +4,10 @@
 .Trashes
 *.swp
 
+# Project-specific stuff
+
+build
+
 # Compiled Object files
 *.slo
 *.lo
@@ -32,3 +36,4 @@
 *.exe
 *.out
 *.app
+*.elf
