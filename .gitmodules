@@ -1,3 +1,6 @@
 [submodule "libretro-common"]
 	path = src/api/libretro-common
 	url = https://github.com/libretro/libretro-common.git
+[submodule "src/api/UDynLoad"]
+	path = src/api/UDynLoad
+	url = https://github.com/QuarkTheAwesome/UDynLoad.git
