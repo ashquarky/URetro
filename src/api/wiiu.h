@@ -3,13 +3,7 @@
 #ifndef __WIIU_DYNLIBS_H__
 #define __WIIU_DYNLIBS_H__
 
-void (*OSScreenInit)();
-
-void setupDynamicLibs() {
-	unsigned int coreinit_handle;
-	OSDynLoad_Acquire("coreinit", &coreinit_handle);
-	
-	OSDynLoad_FindExport(coreinit_handle, 0, "OSScreenInit", &OSScreenInit);
-}
+#include "dynamic_libs/os_functions.h"
+#include "dynamic_libs/vpad_functions.h"
 
 #endif //__WIIU_DYNLIBS_H__

@@ -4,3 +4,6 @@
 [submodule "src/api/UDynLoad"]
 	path = src/api/UDynLoad
 	url = https://github.com/QuarkTheAwesome/UDynLoad.git
+[submodule "src/api/dynamic_libs"]
+	path = src/api/dynamic_libs
+	url = https://github.com/Maschell/dynamic_libs
