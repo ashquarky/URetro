@@ -6,5 +6,6 @@
 
 //HBL entrypoint
 void __entry_main(int argc, char** argv);
+void setupDynamicLibs();
 
 #endif
