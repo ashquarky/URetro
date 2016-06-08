@@ -7,13 +7,17 @@
 #include "kernel.h"
 #include "input.h" // /ux
 #include "exception.h"
+#include "memory.h"
+#include "fs_utils.h"
+#include "sd_fat_devoptab.h"
 
 int __entry_menu(int argc, char** argv) {
 	InitOSFunctionPointers();
 	InitVPadFunctionPointers();
-	OSSetExceptionCallback(2, &exception_handler);
-	OSSetExceptionCallback(3, &exception_handler);
-	OSSetExceptionCallback(6, &exception_handler);
+	InitFSFunctionPointers();
+	initMemory();
+	InstallExceptionHandler();
+	mount_sd_fat("sd");
 	
 	//Setup BATs for later
 	InjectSyscall36((unsigned int)injectBAT);

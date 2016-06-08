@@ -3,3 +3,4 @@
 
 #include "dynamic_libs/os_functions.h"
 #include "dynamic_libs/vpad_functions.h"
+#include "dynamic_libs/fs_functions.h"

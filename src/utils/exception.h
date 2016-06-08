@@ -1,5 +1,8 @@
 #include "wiiu.h"
 
+#ifndef __EXCEPTION_H__
+#define __EXCEPTION_H__
+
 void exception_disassembly_helper(char *fmt, int addr,int opcode, char* s)
 {
     char* *store = (char**)0x1ab5d140;
@@ -34,3 +37,10 @@ unsigned char exception_handler(void* contextIn) {
 	
 	return 0;
 }
+void InstallExceptionHandler() {
+	OSSetExceptionCallback(2, &exception_handler);
+	OSSetExceptionCallback(3, &exception_handler);
+	OSSetExceptionCallback(6, &exception_handler);
+}
+
+#endif //__EXCEPTION_H__

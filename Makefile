@@ -34,20 +34,24 @@ BUILD_DBG	:=	$(TARGET)_dbg
 SOURCES		:=	src \
 				src/api \
 				src/api/dynamic_libs \
+				src/api/fs \
 				src/kernel \
 				src/video \
 				src/ux \
-				src/utils
+				src/utils \
+				src/cores
 				
 DATA		:=	
 
 INCLUDES	:=  src \
 				src/api \
 				src/api/dynamic_libs \
+				src/api/fs \
 				src/kernel \
 				src/video \
 				src/ux \
-				src/utils
+				src/utils \
+				src/cores
 
 #---------------------------------------------------------------------------------
 # options for code generation
