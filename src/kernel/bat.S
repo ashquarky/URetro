@@ -1,32 +1,32 @@
 .globl injectBAT
 injectBAT:
 	#Set dbat6u
-	lis r3, 0x000000FF@h
-	ori r3, r3, 0x000000FF@l
-	mtspr 572, r3
+	#lis r3, 0x000000FF@h
+	#ori r3, r3, 0x000000FF@l
+	#mtspr 572, r3
 	#set dbat6l
-	lis r3, 0x30000012@h
-	ori r3, r3, 0x30000012@l
-	mtspr 573, r3
+	#lis r3, 0x90000012@h
+	#ori r3, r3, 0x90000012@l
+	#mtspr 573, r3
 	#Set ibat6u
-	lis r3, 0x000000FF@h
-	ori r3, r3, 0x000000FF@l
+	lis r3, 0xE00007FF@h
+	ori r3, r3, 0xE00007FF@l
 	mtspr 564, r3
 	#set ibat6l
-	lis r3, 0x30000012@h
-	ori r3, r3, 0x30000012@l
+	lis r3, 0x14000012@h
+	ori r3, r3, 0x14000012@l
 	mtspr 565, r3
 	rfi
 
 .globl clearBAT
 clearBAT:
-	lis r3, 0x00000000@h
-	ori r3, r3, 0x00000000@l
-	mtspr 572, r3
+	#lis r3, 0x00000000@h
+	#ori r3, r3, 0x00000000@l
+	#mtspr 572, r3
 	
-	lis r3, 0x00000000@h
-	ori r3, r3, 0x00000000@l
-	mtspr 573, r3
+	#lis r3, 0x00000000@h
+	#ori r3, r3, 0x00000000@l
+	#mtspr 573, r3
 	
 	lis r3, 0x00000000@h
 	ori r3, r3, 0x00000000@l

@@ -11,7 +11,7 @@ struct videoData {
 
 void initVideo();
 void render(struct videoData data);
-void videoDebugMessage(char* msg);
+void videoDebugMessage(int line, char* msg);
 void finalizeFrame();
 void waitForVSync();
 

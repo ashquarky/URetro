@@ -28,9 +28,16 @@ void waitForFrame() {
 	
 }
 
-void videoDebugMessage(char* msg) {
-	OSScreenPutFontEx(0, 0, 0, msg);
-	OSScreenPutFontEx(1, 0, 0, msg);
+//debug messages kinda throw all that finalizeFrame() stuff out the window
+void videoDebugMessage(int line, char* msg) {
+	OSScreenPutFontEx(0, 0, line, msg);
+	OSScreenPutFontEx(1, 0, line, msg);
+	DCFlushRange((void*)0xF4000000, buffer0Size);
+	DCFlushRange((void*)(0xF4000000 + buffer0Size), buffer1Size);
+	OSScreenFlipBuffersEx(0);
+	OSScreenFlipBuffersEx(1);
+	OSScreenPutFontEx(0, 0, line, msg);
+	OSScreenPutFontEx(1, 0, line, msg);
 }
 
 void finalizeFrame() {

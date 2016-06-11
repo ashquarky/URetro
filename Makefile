@@ -34,6 +34,7 @@ BUILD_DBG	:=	$(TARGET)_dbg
 SOURCES		:=	src \
 				src/api \
 				src/api/dynamic_libs \
+				src/api/UDynLoad/api \
 				src/api/fs \
 				src/kernel \
 				src/video \

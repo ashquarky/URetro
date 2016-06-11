@@ -20,7 +20,7 @@ void pollInputs() {
 	VPADData vpad;
 	int error;
 	VPADRead(0, &vpad, 1, &error);
-	if (vpad.btns_h & 0x02) { //HOME
+	if (vpad.btns_d & 0x02) { //HOME
 		currentData.homePressed = 1;
 	} else {
 		currentData.homePressed = 0;
