@@ -69,6 +69,7 @@ int __entry_menu(int argc, char** argv) {
 	}
 	
 	//cleanup
+	shutdownVideo();
 	memset(core, 0, coreSize); //Delete core from memory or HBL will cry every time
 	InjectSyscall36((unsigned int)clearBAT);
 	RunSyscall36();

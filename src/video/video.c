@@ -1,6 +1,7 @@
 /* URetro - a thing for the Wii U */
 /* https://github.com/QuarkTheAwesome/URetro */
 
+#include <string.h>
 #include <stdlib.h>
 #include "video.h"
 #include "wiiu.h"
@@ -26,6 +27,13 @@ void initVideo() {
 	
 	OSScreenEnableEx(0, 1);
 	OSScreenEnableEx(1, 1);
+	
+	OSScreenClearBufferEx(0, 0);
+	OSScreenClearBufferEx(1, 0);
+	OSScreenFlipBuffersEx(0);
+	OSScreenFlipBuffersEx(1);
+	OSScreenClearBufferEx(0, 0);
+	OSScreenClearBufferEx(1, 0);
 }
 
 void renderCoreVideo(struct videoData frame) {
@@ -52,6 +60,28 @@ void waitForFrame() {
 	
 }
 
+//Stops HBL crying every time
+void shutdownVideo() {
+	OSScreenClearBufferEx(0, 0);
+	OSScreenClearBufferEx(1, 0);
+	
+	DCFlushRange((void*)0xF4000000, buffer0Size);
+	DCFlushRange((void*)(0xF4000000 + buffer0Size), buffer1Size);
+	OSScreenFlipBuffersEx(0);
+	OSScreenFlipBuffersEx(1);
+	
+	OSScreenClearBufferEx(0, 0);
+	OSScreenClearBufferEx(1, 0);
+	
+	DCFlushRange((void*)0xF4000000, buffer0Size);
+	DCFlushRange((void*)(0xF4000000 + buffer0Size), buffer1Size);
+	OSScreenFlipBuffersEx(0);
+	OSScreenFlipBuffersEx(1);
+	
+	OSScreenEnableEx(0, 0);
+	OSScreenEnableEx(1, 0);
+}
+
 //debug messages kinda throw all that finalizeFrame() stuff out the window
 void videoDebugMessage(int line, char* msg) {
 	OSScreenPutFontEx(0, 0, line, msg);
@@ -62,6 +92,10 @@ void videoDebugMessage(int line, char* msg) {
 	OSScreenFlipBuffersEx(1);
 	OSScreenPutFontEx(0, 0, line, msg);
 	OSScreenPutFontEx(1, 0, line, msg);
+	DCFlushRange((void*)0xF4000000, buffer0Size);
+	DCFlushRange((void*)(0xF4000000 + buffer0Size), buffer1Size);
+	OSScreenFlipBuffersEx(0);
+	OSScreenFlipBuffersEx(1);
 }
 
 void finalizeFrame() {
@@ -82,13 +116,12 @@ struct videoData RGB565FrameToNative(struct videoData* inputFrame) {
 	struct videoData nativeFrame;
 	nativeFrame.width = inputFrame->width;
 	nativeFrame.height = inputFrame->height;
-	nativeFrame.freeOnUse = 1;
+	nativeFrame.freeOnUse = 1; //We malloc() the frame data, so we want it freed
+	
 	unsigned short* inputData = (unsigned short*)(inputFrame->pixelData);
 	unsigned int* nativeData = (unsigned int*)malloc(nativeFrame.width * nativeFrame.height * 4);
-	if (!nativeData) {
-		struct videoData dummy;
-		return dummy;
-	}
+	memset(nativeData, 0, nativeFrame.width * nativeFrame.height * 4);
+	
 	for (unsigned int i = 0; i < (nativeFrame.width * nativeFrame.height); i++) {
 		unsigned int colour = 0;
 		colour |= 0xFF; //Alpha 100%
@@ -97,9 +130,7 @@ struct videoData RGB565FrameToNative(struct videoData* inputFrame) {
 		colour |= (((inputData[i] & 0x1F) << 3) | ((inputData[i] & 0x1C) >> 5)) << 8; //Blue
 		nativeData[i] = colour;
 	}
-	char buf[255];
-	__os_snprintf(buf, 255, "pixel 2 is 0x%08X", nativeData[2]);
-	videoDebugMessage(3, buf);
+	
 	nativeFrame.pixelData = (void*)nativeData;
 	return nativeFrame;
 }

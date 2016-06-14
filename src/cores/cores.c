@@ -1,6 +1,7 @@
 /* URetro - a thing for the Wii U */
 /* https://github.com/QuarkTheAwesome/URetro */
 
+#include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include "cores.h"
@@ -14,6 +15,10 @@
 //Objects prefixed by _core_ are in the libretro core (the ELF we load)
 //Objects prefixed by _fend_ are in the URetro Frontend (this code)
 //Objects prefixed by retro or RETRO are in the libretro headers (libretro.h)
+
+//_fend_ signatures
+static void _fend_video_refresh(const void* data, unsigned width, unsigned height, size_t pitch);
+static bool _fend_environment(unsigned cmd, void* data);
 
 //Functions public to other URetro files
 int loadCore(void* coreElf) {
@@ -56,6 +61,17 @@ int runCore() {
 	return (int)_core_api_version;
 }
 
+void testVideoOutput() {
+	unsigned short* data = (unsigned short*)malloc(100*100*2);
+	for (int i = 0; i < (100 * 100); i++) {
+		data[i] = 0xDAC6; //RGB565 orange
+	}
+	_fend_video_refresh((const void*)data, 100, 100, 1);
+	finalizeFrame();
+	memset(data, 0, 100*100*2);
+	free(data);
+}
+
 //Core interface
 
 /** environment(unsigned, void*)
@@ -91,19 +107,6 @@ static bool _fend_environment(unsigned cmd, void* data) {
 		}
 		return true;
 	}
-}
-static void _fend_video_refresh(const void* data, unsigned width, unsigned height, size_t pitch);
-void testVideoOutput() {
-	unsigned short* data = malloc(10 * 10 * 2); //Make a 10x10 image
-	for (int i = 0; i < (10 * 10); i++) {
-		data[i] = 0x1F; //RGB555 solid red
-	}
-	char buf[255];
-	__os_snprintf(buf, 255, "Setup red buffer at 0x%X", data);
-	videoDebugMessage(4, buf);
-	_fend_video_refresh((const void*)data, 10, 10, 1);
-	finalizeFrame();
-	free(data);
 }
 
 /** video_refresh(const void*, unsigned, unsigned, size_t)

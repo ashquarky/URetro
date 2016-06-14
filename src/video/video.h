@@ -9,7 +9,7 @@ struct videoData {
 	unsigned int width;
 	unsigned int height;
 	unsigned int* pixelData;
-	//Should render* functions run free() on pixelData?
+	
 	unsigned char freeOnUse;
 };
 
@@ -19,5 +19,6 @@ void videoDebugMessage(int line, char* msg);
 void finalizeFrame();
 void waitForVSync();
 struct videoData RGB565FrameToNative(struct videoData* inputFrame);
+void shutdownVideo();
 
 #endif //__VIDEO_H__
