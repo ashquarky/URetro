@@ -1,13 +1,21 @@
 /* URetro - a thing for the Wii U */
 /* https://github.com/QuarkTheAwesome/URetro */
 
+#include <stdlib.h>
 #include "video.h"
 #include "wiiu.h"
 
 int buffer0Size = 0;
 int buffer1Size = 0;
 
+//For some reason this isn't in dynamic_libs
+unsigned int (*OSScreenPutPixelEx)(unsigned int bufferNum, unsigned int posX, unsigned int posY, uint32_t color);
+
 void initVideo() {
+	unsigned int coreinit_handle;
+	OSDynLoad_Acquire("coreinit", &coreinit_handle);
+	OSDynLoad_FindExport(coreinit_handle, 0, "OSScreenPutPixelEx", &OSScreenPutPixelEx);
+	
 	OSScreenInit();
 	
 	buffer0Size = OSScreenGetBufferSizeEx(0);
@@ -20,8 +28,24 @@ void initVideo() {
 	OSScreenEnableEx(1, 1);
 }
 
-void render(struct videoData data) {
-	
+void renderCoreVideo(struct videoData frame) {
+	unsigned int x = 0;
+	unsigned int y = 0;
+	for (unsigned int i = 0; i < (frame.width * frame.height); i++) {
+		OSScreenPutPixelEx(0, x, y, frame.pixelData[i]);
+		OSScreenPutPixelEx(1, x, y, frame.pixelData[i]);
+		x++;
+		if (x >= frame.width) {
+			y++;
+			x = 0;
+		}
+		if (y >= frame.height) {
+			break;
+		}
+	}
+	if (frame.freeOnUse) {
+		free(frame.pixelData);
+	}
 }
 
 void waitForFrame() {
@@ -46,4 +70,36 @@ void finalizeFrame() {
 	
 	OSScreenFlipBuffersEx(0);
 	OSScreenFlipBuffersEx(1);
+}
+
+/** RGB565FrameToNative(struct videoData*)
+ ** Converts a RGB565 videoData into native (RGBA8888). DOES NOT WORK.
+ ** Makes a NEW videoData, old one can be released safely.
+ **
+ ** Uses a simple algorithim, see http://stackoverflow.com/a/2442617
+ */
+struct videoData RGB565FrameToNative(struct videoData* inputFrame) {
+	struct videoData nativeFrame;
+	nativeFrame.width = inputFrame->width;
+	nativeFrame.height = inputFrame->height;
+	nativeFrame.freeOnUse = 1;
+	unsigned short* inputData = (unsigned short*)(inputFrame->pixelData);
+	unsigned int* nativeData = (unsigned int*)malloc(nativeFrame.width * nativeFrame.height * 4);
+	if (!nativeData) {
+		struct videoData dummy;
+		return dummy;
+	}
+	for (unsigned int i = 0; i < (nativeFrame.width * nativeFrame.height); i++) {
+		unsigned int colour = 0;
+		colour |= 0xFF; //Alpha 100%
+		colour |= ((inputData[i] & 0xF800) | ((inputData[i] & 0xE000) >> 5)) << 16; //Red
+		colour |= ((inputData[i] & 0x7E0) | ((inputData[i] & 0x600) >> 6)) << 13; //Green
+		colour |= (((inputData[i] & 0x1F) << 3) | ((inputData[i] & 0x1C) >> 5)) << 8; //Blue
+		nativeData[i] = colour;
+	}
+	char buf[255];
+	__os_snprintf(buf, 255, "pixel 2 is 0x%08X", nativeData[2]);
+	videoDebugMessage(3, buf);
+	nativeFrame.pixelData = (void*)nativeData;
+	return nativeFrame;
 }

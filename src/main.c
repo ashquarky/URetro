@@ -59,10 +59,7 @@ int __entry_menu(int argc, char** argv) {
 		}
 	}
 	
-	int ret = setupCore();
-	
-	__os_snprintf(buf, 255, "OK! 0x%X", ret);
-	videoDebugMessage(3, buf);
+	testVideoOutput();
 	
 	while (1) {
 		pollInputs();

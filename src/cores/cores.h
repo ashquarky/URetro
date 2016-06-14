@@ -13,4 +13,6 @@ int loadCore(void* coreElf);
 int setupCore();
 int runCore();
 
+void testVideoOutput();
+
 #endif //__CORES_H__
