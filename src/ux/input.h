@@ -5,6 +5,7 @@
 
 void initInputs();
 void pollInputs();
-int inputCheckButton(int button); //libretro cores will poll the whole controller at once, so this may not be needed
+int UIInputCheckButton(); //libretro cores will poll the whole controller at once, so this may not be needed
+int inputCheckButton(int controller, unsigned int button);
 
 #endif //__INPUT_H__

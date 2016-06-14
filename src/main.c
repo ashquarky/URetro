@@ -46,24 +46,17 @@ int __entry_menu(int argc, char** argv) {
 	__os_snprintf(buf, 255, "Core loaded, error %d. Core at 0x%X", error, core);
 	videoDebugMessage(1, buf);
 	
-	int api = runCore(); //runCore and setupCore are just random functions I picked and their names mean nothing as of now.
+	int api = setupCore(); //runCore and setupCore are just random functions I picked and their names mean nothing as of now.
 	//They will make more sense in future, however.
 	
 	__os_snprintf(buf, 255, "Core func is 0x%08X", api);
 	videoDebugMessage(2, buf);
 	
-	while (1) {
-		pollInputs();
-		if (inputCheckButton(0xBABECAFE)) {
-			break;
-		}
-	}
-	
 	testVideoOutput();
 	
 	while (1) {
 		pollInputs();
-		if (inputCheckButton(0xBABECAFE)) {
+		if (UIInputCheckButton()) {
 			break;
 		}
 	}

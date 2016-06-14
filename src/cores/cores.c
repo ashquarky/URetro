@@ -9,6 +9,7 @@
 #include "libretro.h"
 #include "UDynLoad.h"
 #include "video.h"
+#include "input.h"
 
 #include "wiiu.h"
 
@@ -19,6 +20,10 @@
 //_fend_ signatures
 static void _fend_video_refresh(const void* data, unsigned width, unsigned height, size_t pitch);
 static bool _fend_environment(unsigned cmd, void* data);
+static int16_t _fend_input_state(unsigned port, unsigned device, unsigned index, unsigned id);
+static void _fend_input_poll(void);
+static void _fend_audio_sample(int16_t left, int16_t right);
+static size_t _fend_audio_sample_batch(const int16_t *data, size_t frames);
 
 //Functions public to other URetro files
 int loadCore(void* coreElf) {
@@ -54,7 +59,13 @@ int loadCore(void* coreElf) {
 }
 
 int setupCore() {
-	return _core_api_version();
+	_core_set_environment(_fend_environment);
+	_core_set_video_refresh(_fend_video_refresh);
+	_core_set_input_poll(_fend_input_poll);
+	_core_set_input_state(_fend_input_state);
+	_core_set_audio_sample(_fend_audio_sample);
+	_core_set_audio_sample_batch(_fend_audio_sample_batch);
+	return 1;
 }
 
 int runCore() {
@@ -105,8 +116,8 @@ static bool _fend_environment(unsigned cmd, void* data) {
 			//Unimplemented env
 			return false;
 		}
-		return true;
 	}
+	return true;
 }
 
 /** video_refresh(const void*, unsigned, unsigned, size_t)
@@ -131,4 +142,58 @@ static void _fend_video_refresh(const void* data, unsigned width, unsigned heigh
 		return;
 	}
 	renderCoreVideo(nativeFrame);
+}
+
+struct coreInputMapping {
+	unsigned realInput;
+	unsigned emulatedInput;
+};
+
+struct coreInputMapping coreInputBindings[] = {
+	{VPAD_BUTTON_A, RETRO_DEVICE_ID_JOYPAD_A},
+	{VPAD_BUTTON_B, RETRO_DEVICE_ID_JOYPAD_B},
+	{VPAD_BUTTON_X, RETRO_DEVICE_ID_JOYPAD_X},
+	{VPAD_BUTTON_Y, RETRO_DEVICE_ID_JOYPAD_Y},
+	{VPAD_BUTTON_UP, RETRO_DEVICE_ID_JOYPAD_UP},
+	{VPAD_BUTTON_DOWN, RETRO_DEVICE_ID_JOYPAD_DOWN},
+	{VPAD_BUTTON_LEFT, RETRO_DEVICE_ID_JOYPAD_LEFT},
+	{VPAD_BUTTON_RIGHT, RETRO_DEVICE_ID_JOYPAD_RIGHT},
+	{VPAD_BUTTON_PLUS, RETRO_DEVICE_ID_JOYPAD_START},
+	{VPAD_BUTTON_MINUS, RETRO_DEVICE_ID_JOYPAD_SELECT},
+	
+	{0, 0}
+};
+
+static unsigned coreCurrentInputState[RETRO_DEVICE_ID_JOYPAD_R3+1] = {0};
+
+/** input_poll(void)
+ ** Polls inputs. Does not check button state for core, but we will for more efficient keymappings.
+ */
+static void _fend_input_poll(void) {
+	pollInputs();
+	for (int i = 0; coreInputBindings[i].realInput || coreInputBindings[i].emulatedInput; ++i) {
+		coreCurrentInputState[coreInputBindings[i].emulatedInput] = inputCheckButton(0, coreInputBindings[i].realInput);
+	}
+}
+
+/** input_state(unsigned, unsigned, unsigned, unsigned)
+ ** Checks a certain button. We simply get this from the keymap we set up in input_poll.
+ **
+ ** TODO: Multiplayer support.
+ */
+static int16_t _fend_input_state(unsigned port, unsigned device, unsigned index, unsigned id) {
+	if (port || index || device != RETRO_DEVICE_JOYPAD) {
+		return 0;
+	}
+	return coreCurrentInputState[id];
+}
+
+//TODO audio stubs
+
+static void _fend_audio_sample(int16_t left, int16_t right) {
+	return;
+}
+
+static size_t _fend_audio_sample_batch(const int16_t *data, size_t frames) {
+	return frames;
 }
