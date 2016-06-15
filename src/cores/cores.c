@@ -58,13 +58,30 @@ int loadCore(void* coreElf) {
 	return 0;
 }
 
-int setupCore() {
+int setupCore(void* game, int gameSize) {
 	_core_set_environment(_fend_environment);
 	_core_set_video_refresh(_fend_video_refresh);
 	_core_set_input_poll(_fend_input_poll);
 	_core_set_input_state(_fend_input_state);
 	_core_set_audio_sample(_fend_audio_sample);
 	_core_set_audio_sample_batch(_fend_audio_sample_batch);
+	
+	//QUICK EVERYONE PANIC
+	_core_init();
+	
+	//Load game
+	
+	struct retro_system_info system_info = {0};
+	struct retro_game_info game_info = {"game.bin", 0, 0, 0};
+	
+	_core_get_system_info(&system_info);
+	//Ideally here we should check system_info.need_fullpath, but nah.
+	
+	game_info.size = gameSize;
+	game_info.data = game;
+	
+	_core_load_game(&game_info);
+
 	return 1;
 }
 

@@ -10,7 +10,7 @@
 #define __CORES_H__
 
 int loadCore(void* coreElf);
-int setupCore();
+int setupCore(void* game, int gameSize);
 int runCore();
 
 void testVideoOutput();

@@ -40,16 +40,19 @@ int __entry_menu(int argc, char** argv) {
 	memcpy(core, MEM2core, coreSize); //Move core to MEM1
 	free(MEM2core);
 	
-	int error = loadCore(core);
+	int error = loadCore(core); //Load core symbols (UDynLoad)
 	
 	char buf[255];
 	__os_snprintf(buf, 255, "Core loaded, error %d. Core at 0x%X", error, core);
 	videoDebugMessage(1, buf);
 	
-	int api = setupCore(); //runCore and setupCore are just random functions I picked and their names mean nothing as of now.
-	//They will make more sense in future, however.
+	unsigned char* game = 0;
+	unsigned int gameSize = 0;
+	LoadFileToMem("sd://game.bin", &game, &gameSize);
 	
-	__os_snprintf(buf, 255, "Core func is 0x%08X", api);
+	error = setupCore((void*)game, gameSize); //Initialise core
+	
+	__os_snprintf(buf, 255, "Setup core, error %d", error);
 	videoDebugMessage(2, buf);
 	
 	testVideoOutput();
@@ -64,6 +67,7 @@ int __entry_menu(int argc, char** argv) {
 	//cleanup
 	shutdownVideo();
 	memset(core, 0, coreSize); //Delete core from memory or HBL will cry every time
+	memset(game, 0, gameSize);
 	InjectSyscall36((unsigned int)clearBAT);
 	RunSyscall36();
 	return 0;
