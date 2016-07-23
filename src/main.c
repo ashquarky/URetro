@@ -17,12 +17,13 @@ int __entry_menu(int argc, char** argv) {
 	InitOSFunctionPointers();
 	InitVPadFunctionPointers();
 	InitFSFunctionPointers();
-	InstallExceptionHandler();
 	mount_sd_fat("sd");
 	
 	//Setup BATs for later
 	InjectSyscall36((unsigned int)injectBAT);
 	RunSyscall36();
+	
+	InstallExceptionHandler();
 	
 	initInputs();
 	
@@ -52,7 +53,7 @@ int __entry_menu(int argc, char** argv) {
 	
 	error = setupCore((void*)game, gameSize); //Initialise core
 	
-	__os_snprintf(buf, 255, "Setup core, error %d", error);
+	__os_snprintf(buf, 255, "Setup core, error %d, game at %X size %X", error, game, gameSize);
 	videoDebugMessage(2, buf);
 	
 	testVideoOutput();
@@ -63,6 +64,8 @@ int __entry_menu(int argc, char** argv) {
 			break;
 		}
 	}
+	
+	
 	
 	//cleanup
 	shutdownVideo();

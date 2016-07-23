@@ -98,6 +98,11 @@ void videoDebugMessage(int line, char* msg) {
 	OSScreenFlipBuffersEx(1);
 }
 
+void clearBuffer() {
+	OSScreenClearBufferEx(0, 0);
+	OSScreenClearBufferEx(1, 0);
+}
+
 void finalizeFrame() {
 	DCFlushRange((void*)0xF4000000, buffer0Size);
 	DCFlushRange((void*)(0xF4000000 + buffer0Size), buffer1Size);
@@ -107,7 +112,7 @@ void finalizeFrame() {
 }
 
 /** RGB565FrameToNative(struct videoData*)
- ** Converts a RGB565 videoData into native (RGBA8888). DOES NOT WORK.
+ ** Converts a RGB565 videoData into native (RGBA8888). Alpha always 100%.
  ** Makes a NEW videoData, old one can be released safely.
  **
  ** Uses a simple algorithim, see http://stackoverflow.com/a/2442617
@@ -131,6 +136,27 @@ struct videoData RGB565FrameToNative(struct videoData* inputFrame) {
 		nativeData[i] = colour;
 	}
 	
+	nativeFrame.pixelData = (void*)nativeData;
+	return nativeFrame;
+}
+
+/** XRGB8888FrameToNative(struct videoData*)
+ ** Converts a XRGB8888 videoData into native (RGBA8888).
+ ** Makes a NEW videoData, old one can be released safely.
+ */
+struct videoData XRGB8888FrameToNative(struct videoData* inputFrame) {
+	struct videoData nativeFrame;
+	nativeFrame.width = inputFrame->width;
+	nativeFrame.height = inputFrame->height;
+	nativeFrame.freeOnUse = 1; //We malloc() the frame data, so we want it freed
+	
+	unsigned int* inputData = (unsigned int*)(inputFrame->pixelData);
+	unsigned int* nativeData = (unsigned int*)malloc(nativeFrame.width * nativeFrame.height * 4);
+	memset(nativeData, 0, nativeFrame.width * nativeFrame.height * 4);
+	
+	for (unsigned int i = 0; i < (nativeFrame.width * nativeFrame.height); i++) {
+		nativeData[i] = ((inputData[i] << 8) | 0xFF) & 0xFFFFFFFF;
+	}
 	nativeFrame.pixelData = (void*)nativeData;
 	return nativeFrame;
 }

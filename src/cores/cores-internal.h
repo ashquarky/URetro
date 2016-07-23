@@ -8,6 +8,15 @@
 
 void* coreHandle;
 
+//Private function signatures from cores.c
+static void _fend_video_refresh(const void* data, unsigned width, unsigned height, size_t pitch);
+static bool _fend_environment(unsigned cmd, void* data);
+static int16_t _fend_input_state(unsigned port, unsigned device, unsigned index, unsigned id);
+static void _fend_input_poll(void);
+static void _fend_audio_sample(int16_t left, int16_t right);
+static size_t _fend_audio_sample_batch(const int16_t *data, size_t frames);
+static void _fend_log(enum retro_log_level level, const char* fmt, ...) ;
+
 //libretro function pointers.
 //Prefixed by _core_ to denote that they are functions present in the core's code.
 //Should never really leave /cores on the codebase.

@@ -37,3 +37,7 @@ build
 *.out
 *.app
 *.elf
+/.cproject
+/.project
+/URetro.elf.wiiload.gz
+/URetro.idb
