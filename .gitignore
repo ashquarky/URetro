@@ -41,3 +41,6 @@ build
 /.project
 /URetro.elf.wiiload.gz
 /URetro.idb
+
+
+.externalToolBuilders

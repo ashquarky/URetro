@@ -46,6 +46,7 @@ int loadCore(void* coreElf) {
 	error |= UDynLoad_FindExport(coreHandle, 0, "retro_set_input_state", &_core_set_input_state);
 	error |= UDynLoad_FindExport(coreHandle, 0, "retro_set_audio_sample", &_core_set_audio_sample);
 	error |= UDynLoad_FindExport(coreHandle, 0, "retro_set_audio_sample_batch", &_core_set_audio_sample_batch);
+	error |= UDynLoad_FindExport(coreHandle, 0, "__uretro_set_heap", &_core_uretro_set_heap);
 	
 	if (error) {
 		return 0x8000 | error;
@@ -54,6 +55,11 @@ int loadCore(void* coreElf) {
 }
 
 int setupCore(void* game, int gameSize) {
+	void* heapForCore = makeHeapForCore(0x1000000); //Make a 16MB heap for the core. Might be a bit big.
+	if (!heapForCore) {
+		return -1;
+	} //Code reaches here okay but core still has trouble, what's going on?
+	_core_uretro_set_heap(heapForCore);
 	_core_set_environment(_fend_environment);
 	_core_set_video_refresh(_fend_video_refresh);
 	_core_set_input_poll(_fend_input_poll);
@@ -75,7 +81,7 @@ int setupCore(void* game, int gameSize) {
 	game_info.size = gameSize;
 	game_info.data = game;
 	
-	int success = _core_load_game(&game_info); //Crash is here in core code, tries to access 0xE
+	int success = _core_load_game(&game_info); //Crash is here in core code, to do with std::string, memory management?
 	
 	return success;
 }
@@ -150,8 +156,9 @@ static bool _fend_environment(unsigned cmd, void* data) {
  **
  ** TODO: Stub.
  */
+int line = 5;
 static void _fend_log(enum retro_log_level level, const char* fmt, ...) {
-	videoDebugMessage(9, (char*)fmt);
+	videoDebugMessage(line++, (char*)fmt);
 }
 /** video_refresh(const void*, unsigned, unsigned, size_t)
  ** Used by the core to give us video data.

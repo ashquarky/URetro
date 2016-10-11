@@ -8,6 +8,9 @@
 
 void* coreHandle;
 
+//cores-memory-mgmt.c
+void* makeHeapForCore(unsigned int size);
+
 //Private function signatures from cores.c
 static void _fend_video_refresh(const void* data, unsigned width, unsigned height, size_t pitch);
 static bool _fend_environment(unsigned cmd, void* data);
@@ -16,6 +19,9 @@ static void _fend_input_poll(void);
 static void _fend_audio_sample(int16_t left, int16_t right);
 static size_t _fend_audio_sample_batch(const int16_t *data, size_t frames);
 static void _fend_log(enum retro_log_level level, const char* fmt, ...) ;
+
+//Custom additions to the API. Don't tell the libretro team.
+void (*_core_uretro_set_heap)(void* heap);
 
 //libretro function pointers.
 //Prefixed by _core_ to denote that they are functions present in the core's code.
