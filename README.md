@@ -1,4 +1,6 @@
-*this project is on hold for now*
+### Project Status
+(2017-11-09) Please use the [actual RetroArch port](https://gbatemp.net/threads/447670/) instead. This isn't exactly a shining example of good code. Archiving.
+
 # URetro
 please come up with a better name than this
 
